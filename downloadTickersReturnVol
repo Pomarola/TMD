@@ -1,0 +1,139 @@
+import yfinance as yf
+import pandas as pd
+import numpy as np
+from datetime import datetime
+
+tickers = [
+    #ARGENTINA
+    'GGAL',
+    'YPF',
+    'BMA',
+    'BBAR',
+    'SUPV',
+    'PAM',
+    'CEPU',
+    'TX',
+    'EDN',
+    'CRESY',
+    'TEO',
+    'IRS',
+    'TGS',
+    'LOMA',
+    'MELI',
+    'VIST',
+
+    #BRAZIL
+    'PBR',
+    'NU',
+    'ITUB',
+    'VALE',
+    'BBD',
+
+    #CHINA
+    'BABA',
+    'TME',
+    'JD',
+    'BIDU',
+    'NIO',
+    'PDD',
+    'ZTO',
+
+    #JAPAN
+    'SONY',
+    'TM',
+    'MUFG',
+
+    #USA
+    'AAPL',
+    'MSFT',
+    'GOOGL',
+    'AMZN',
+    'TSLA',
+    'META',
+    'NVDA',
+    'PYPL',
+    'ADBE',
+    'INTC',
+    'CSCO',
+    'IBM',
+    'ORCL',
+    'QCOM',
+    'AMD',
+    'NFLX',
+    'JPM',
+    'GS',
+    'C',
+    'BAC',
+    'WFC',
+    'JNJ',
+    'PFE',
+    'GILD',
+    'LLY',
+    'SBUX',
+    'MCD',
+    'KO',
+    'PEP',
+    'WMT',
+
+    #INDEXES
+    # 'SPY',
+    # 'QQQ',
+    # 'DIA',
+    # 'IWM',
+    # 'EEM',
+    # 'EWZ',
+    # 'FXI',
+    # 'ARGT',
+    # 'IEF',
+    # 'EMB', 
+    # 'AAAU',
+    # 'GLD',
+    # 'SLV',
+
+]
+
+# Set start and end date for 3 years
+end_date = datetime.now().date()
+start_date = end_date.replace(year=end_date.year - 1)
+
+# Initialize an empty list to store results
+results = []
+
+# Function to calculate annual average return, volatility, and average daily volume in USD
+def calculate_metrics(ticker_data):
+    # Calculate daily returns
+    ticker_data['Daily Return'] = ticker_data['Adj Close'].pct_change()
+    
+    # Calculate annual average return
+    annual_avg_return = np.mean(ticker_data['Daily Return']) * 252
+    
+    # Calculate annual volatility (standard deviation)
+    annual_avg_volatility = np.std(ticker_data['Daily Return']) * np.sqrt(252)
+    
+    # Calculate daily volume traded in USD (Volume * Adjusted Close Price)
+    ticker_data['Volume USD'] = ticker_data['Volume'] * ticker_data['Adj Close']
+    
+    # Calculate the average daily volume in USD over the 5 years
+    avg_daily_volume_usd = np.mean(ticker_data['Volume USD'])
+    
+    return annual_avg_return, annual_avg_volatility, avg_daily_volume_usd
+
+# Loop through each ticker and gather data
+for ticker in tickers:
+    # Download historical data for the past 5 years
+    data = yf.download(ticker, start=start_date, end=end_date)
+    
+    if not data.empty:
+        # Calculate metrics
+        annual_return, annual_volatility, avg_volume_usd = calculate_metrics(data)
+        
+        # Append to results list
+        results.append([ticker, annual_return, annual_volatility, avg_volume_usd])
+
+# Create DataFrame with results
+df = pd.DataFrame(results, columns=['ticker', 'annual_avg_return', 'annual_avg_volatility', 'daily_avg_volume_usd'])
+
+# Save the DataFrame to a CSV file
+df.to_csv('annual_metrics_with_volume.csv', index=False)
+
+print("CSV file created successfully.")
