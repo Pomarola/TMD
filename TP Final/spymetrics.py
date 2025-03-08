@@ -10,8 +10,8 @@ sp500_tickers = sp500_table[0]['Symbol'].tolist()  # Adjust table index if neces
 print(sp500_tickers)
 
 # Periods for analysis
-start_period = "2023-09-30"
-end_period = "2024-09-30"
+start_period = "2022-09-30"
+end_period = "2023-09-30"
 
 # Initialize a DataFrame to store combined results
 results = pd.DataFrame()
@@ -38,7 +38,7 @@ def analyze_ticker(ticker):
     balance_sheet = stock.balance_sheet
     financials = stock.financials
     cashflow = stock.cashflow
-    historical_data = stock.history(period="1d", start="2023-09-29", end="2024-09-30")
+    historical_data = stock.history(period="1d", start="2022-09-29", end="2023-09-30")
 
     # Find closest valid dates
     start_date_bs = find_valid_date(balance_sheet, start_period)
@@ -60,8 +60,8 @@ def analyze_ticker(ticker):
         shares_start = balance_sheet.loc['Ordinary Shares Number', start_date_bs] if start_date_bs else np.nan
         shares_end = balance_sheet.loc['Ordinary Shares Number', end_date_bs] if end_date_bs else np.nan
 
-        close_price_start = historical_data.loc["2023-09-29", 'Close'] if "2023-09-29" in historical_data.index else np.nan
-        close_price_end = historical_data.loc["2024-09-27", 'Close'] if "2024-09-27" in historical_data.index else np.nan
+        close_price_start = historical_data.loc["2022-09-29", 'Close'] if "2022-09-29" in historical_data.index else np.nan
+        close_price_end = historical_data.loc["2023-09-27", 'Close'] if "2023-09-27" in historical_data.index else np.nan
 
         market_cap_start = close_price_start * shares_start if not np.isnan(close_price_start) and not np.isnan(shares_start) else np.nan
         market_cap_end = close_price_end * shares_end if not np.isnan(close_price_end) and not np.isnan(shares_end) else np.nan
@@ -114,13 +114,13 @@ def analyze_ticker(ticker):
     # ----------------------------
     try:
         # Fetch historical data for the full date range
-        price_data = yf.download(ticker, start="2023-10-29", end="2024-11-02")
+        price_data = yf.download(ticker, start="2022-10-29", end="2023-11-02")
 
         # Ensure 'Adj Close' exists
         if "Adj Close" in price_data.columns:
             # Extract the adjusted close prices for the specific dates
-            price_start = price_data.loc["2023-10-30":"2023-10-31", "Adj Close"].iloc[0]
-            price_end = price_data.loc["2024-10-30":"2024-10-31", "Adj Close"].iloc[0]
+            price_start = price_data.loc["2022-10-30":"2022-10-31", "Adj Close"].iloc[0]
+            price_end = price_data.loc["2023-10-30":"2023-10-31", "Adj Close"].iloc[0]
 
             # Calculate stock price change
             ticker_results['Stock Price Change'] = ((price_end - price_start) / price_start) * 100
